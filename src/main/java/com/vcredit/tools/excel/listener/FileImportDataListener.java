@@ -67,13 +67,14 @@ public class FileImportDataListener extends AnalysisEventListener<FileData> {
      */
     private void saveData() {
         log.info("{}条数据，开始存储redis！", list.size());
+
         //list转换为String类型
         List<String> transfer = this.list.stream().map(da -> da.getData()).collect(Collectors.toList());
         String[] strings = new String[transfer.size()];
         //转换成数组
         transfer.toArray(strings);
         redisTemplate.opsForSet().add(randomLabel,strings);
-        log.info("存储数据库成功！");
+        log.info("存储进入redis成功！");
     }
 
     /**

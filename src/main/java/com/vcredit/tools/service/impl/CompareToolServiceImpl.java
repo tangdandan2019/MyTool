@@ -45,8 +45,10 @@ public class CompareToolServiceImpl implements CompareToolService {
 
             FileImportDataListener dataListener = new FileImportDataListener(firstLabel);
             EasyExcel.read(inputStreamOne, FileData.class,dataListener).sheet().doRead();
+            log.info(fileOne.getName()+"总共解析存储了"+dataListener.getTotal()+"条数据入库~~~~~");
             FileImportDataListener dataListener2 = new FileImportDataListener(secondLabel);
             EasyExcel.read(inputStreamTwo, FileData.class,dataListener2).sheet().doRead();
+            log.info(fileTwo.getName()+"总共解析存储了"+dataListener2.getTotal()+"条数据入库~~~~~");
 
             Set<String> res1 = redisTemplate.opsForSet().difference(firstLabel, secondLabel);
             Set<String> res2 = redisTemplate.opsForSet().difference(secondLabel, firstLabel);
