@@ -1,8 +1,10 @@
 package com.vcredit.tools.service;
 
+import com.vcredit.tools.excel.data.RespDto;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @Author: tangdandan
@@ -16,5 +18,5 @@ public interface CompareToolService {
      * @param file2
      * @return
      */
-    List compareData(MultipartFile file1, MultipartFile file2);
+    Optional<RespDto> compareData(MultipartFile file1, MultipartFile file2);
 }

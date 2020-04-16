@@ -2,6 +2,7 @@ package com.vcredit.tools.service.impl;
 
 import com.alibaba.excel.EasyExcel;
 import com.vcredit.tools.excel.data.FileData;
+import com.vcredit.tools.excel.data.RespDto;
 import com.vcredit.tools.excel.listener.FileImportDataListener;
 import com.vcredit.tools.service.CompareToolService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -35,18 +37,20 @@ public class CompareToolServiceImpl implements CompareToolService {
      * @return
      */
     @Override
-    public List compareData(MultipartFile fileOne, MultipartFile fileTwo) {
-        List<String> data = new ArrayList<>();
+    public Optional<RespDto> compareData(MultipartFile fileOne, MultipartFile fileTwo) {
+        RespDto dto = new RespDto();
+        ArrayList<String> data = new ArrayList<>();
+        ArrayList<String> repeat = new ArrayList<>();
         try {
             String firstLabel = "file1";
             InputStream inputStreamOne = fileOne.getInputStream();
             String secondLabel = "file2";
             InputStream inputStreamTwo = fileTwo.getInputStream();
 
-            FileImportDataListener dataListener = new FileImportDataListener(firstLabel);
+            FileImportDataListener dataListener = new FileImportDataListener(firstLabel,repeat);
             EasyExcel.read(inputStreamOne, FileData.class,dataListener).sheet().doRead();
             log.info(fileOne.getName()+"总共解析存储了"+dataListener.getTotal()+"条数据入库~~~~~");
-            FileImportDataListener dataListener2 = new FileImportDataListener(secondLabel);
+            FileImportDataListener dataListener2 = new FileImportDataListener(secondLabel,repeat);
             EasyExcel.read(inputStreamTwo, FileData.class,dataListener2).sheet().doRead();
             log.info(fileTwo.getName()+"总共解析存储了"+dataListener2.getTotal()+"条数据入库~~~~~");
 
@@ -60,11 +64,12 @@ public class CompareToolServiceImpl implements CompareToolService {
              res2.stream().forEach(d->{
                  data.add(d);
              });
-
+             dto.setDiffData(data);
+             dto.setRepeatData(repeat);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return data;
+        return Optional.ofNullable(dto);
     }
 
 }

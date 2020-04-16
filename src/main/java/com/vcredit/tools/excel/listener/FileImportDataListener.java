@@ -24,6 +24,7 @@ public class FileImportDataListener extends AnalysisEventListener<FileData> {
 
    private StringRedisTemplate redisTemplate;
    private String randomLabel;
+   private ArrayList<String> repeatValues;
     /**
      * 每隔5条存储数据库，实际使用中可以3000条，然后清理list ，方便内存回收
      */
@@ -31,10 +32,13 @@ public class FileImportDataListener extends AnalysisEventListener<FileData> {
     private static final int BATCH_COUNT = 1000;
     List<FileData> list = new ArrayList<FileData>();
 
-    public FileImportDataListener(String label) {
+
+    public FileImportDataListener(String label, ArrayList<String> data) {
         redisTemplate = SpringUtils.getBean(StringRedisTemplate.class);
         this.randomLabel=label;
+        this.repeatValues =data;
     }
+
     /**
      * 这个每一条数据解析都会来调用
      */
@@ -70,11 +74,25 @@ public class FileImportDataListener extends AnalysisEventListener<FileData> {
 
         //list转换为String类型
         List<String> transfer = this.list.stream().map(da -> da.getData()).collect(Collectors.toList());
+        //判断是否有重复元素
+        findRepeatValues(transfer,repeatValues);
         String[] strings = new String[transfer.size()];
         //转换成数组
         transfer.toArray(strings);
         redisTemplate.opsForSet().add(randomLabel,strings);
         log.info("存储进入redis成功！");
+    }
+
+    public void findRepeatValues(List<String> list, ArrayList res) {
+        ArrayList repeat = new ArrayList<String>();
+        list.stream().forEach(d->{
+            if(repeat.contains(d)){
+                res.add(d);
+            }else {
+                repeat.add(d);
+            }
+        });
+        repeat.clear();
     }
 
     /**
