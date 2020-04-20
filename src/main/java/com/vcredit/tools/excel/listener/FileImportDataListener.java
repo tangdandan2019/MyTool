@@ -8,6 +8,8 @@ import net.dreamlu.mica.config.SpringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Pipeline;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,9 +24,10 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FileImportDataListener extends AnalysisEventListener<FileData> {
 
-   private StringRedisTemplate redisTemplate;
+   private Jedis jedis;
    private String randomLabel;
    private ArrayList<String> repeatValues;
+   private  Pipeline pipeline;
     /**
      * 每隔5条存储数据库，实际使用中可以3000条，然后清理list ，方便内存回收
      */
@@ -34,7 +37,9 @@ public class FileImportDataListener extends AnalysisEventListener<FileData> {
 
 
     public FileImportDataListener(String label, ArrayList<String> data) {
-        redisTemplate = SpringUtils.getBean(StringRedisTemplate.class);
+        jedis = new Jedis("127.0.0.1", 6379);
+        //使用通道，加速处理数据
+        pipeline= jedis.pipelined();
         this.randomLabel=label;
         this.repeatValues =data;
     }
@@ -79,7 +84,8 @@ public class FileImportDataListener extends AnalysisEventListener<FileData> {
         String[] strings = new String[transfer.size()];
         //转换成数组
         transfer.toArray(strings);
-        redisTemplate.opsForSet().add(randomLabel,strings);
+        pipeline.sadd(randomLabel,strings);
+        pipeline.sync();
         log.info("存储进入redis成功！");
     }
 
