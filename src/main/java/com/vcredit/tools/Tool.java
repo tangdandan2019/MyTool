@@ -85,10 +85,14 @@ public class Tool extends JFrame {
 
 
         // 创建文本区域, 显示结果信息
-        final JTextArea resTxt = new JTextArea(10, 25);
+        final JTextArea resTxt = new JTextArea(10,25);
         resTxt.setLineWrap(true);
         resTxt.setText("显示结果：");
-        panel.add(resTxt);
+        JScrollPane jsp = new JScrollPane(resTxt);
+        jsp.setBounds(13, 10, 350, 340);
+        jsp.setVerticalScrollBarPolicy( JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        panel.add(jsp);
+       // panel.add(resTxt);
 
         JLabel hideLabel = new JLabel("                     ");
         hideLabel.setVisible(true);
