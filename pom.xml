@@ -27,7 +27,7 @@
         <velocity.version>2.0</velocity.version>
         <commons-io.version>2.6</commons-io.version>
         <easyexcel.version>2.1.2</easyexcel.version>
-        <fastjson.version>1.2.57</fastjson.version>
+        <fastjson.version>1.2.83</fastjson.version>
         <mica.version>1.1.9</mica.version>
     </properties>
     <dependencyManagement>
